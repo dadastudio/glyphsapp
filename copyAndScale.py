@@ -1,7 +1,7 @@
 #MenuTitle: Makes copies with suffix
 # -*- coding: utf-8 -*-
 __doc__="""
-Goes through all selected glyphs, makes copy and add suffix
+Goes through all selected glyphs, makes copy and adds suffix
 """
 
 import GlyphsApp
