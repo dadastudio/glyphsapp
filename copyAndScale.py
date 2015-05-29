@@ -8,27 +8,36 @@ import GlyphsApp
 Font = Glyphs.font
 
 selectedLayers = Font.selectedLayers
-# Glyphs.clearLog()
-# Glyphs.showMacroWindow()
+Glyphs.clearLog()
+Glyphs.showMacroWindow()
 
 # SMALL CAPS
 
-# offset=0
-# suffix=".sc"
-# sideBearingFactor=0
-# scaleFactors=[.78,.82,.88]
-# makeLowercase=True
-
+offset=0
+suffix=".sc"
+sideBearingFactor=0
+scaleFactors=[.78,.82,.88]
+makeLowercase=True
+baseName=True
 
 # SUPERSCRIPT
 
-offset=250
-suffix=".sups"
-sideBearingFactor=.9
-scaleFactors=[.6,.6,.6]
-makeLowercase=False
+# offset=250
+# suffix=".sups"
+# sideBearingFactor=.9
+# scaleFactors=[.6,.6,.6]
+# makeLowercase=False
+# removeAnchors=True
 
+# SUBSCRIPT
 
+# offset=-150
+# suffix=".subs"
+# sideBearingFactor=.9
+# scaleFactors=[.6,.6,.6]
+# makeLowercase=False
+# removeAnchors=True
+targetGlyph
 def transformNodes( thisLayer , sf ):
 	
 	for thisPath in thisLayer.paths:
@@ -55,8 +64,6 @@ for thisLayer in selectedLayers:
 	sourceGlyphName=thisLayer.parent.name  
 	sourceGlyph=Font.glyphs[sourceGlyphName]
 
-	# newGlyphName=sourceGlyphName + suffix
-	
 	if makeLowercase :
 		pf=sourceGlyphName.split(".")
 		pf[0]= pf[0].lower()		
@@ -68,8 +75,13 @@ for thisLayer in selectedLayers:
 
 	else:
 		newGlyphName=sourceGlyphName + suffix
+	
+	if baseName:
+		pf=sourceGlyphName.split(".")
+		newGlyphName=pf[0] + suffix
 
 	if Font.glyphs[newGlyphName]:		
+
 		targetGlyph=Font.glyphs[newGlyphName]
 	else:		
 		targetGlyph = GSGlyph( newGlyphName )
@@ -80,37 +92,30 @@ for thisLayer in selectedLayers:
 
 		sourceLayer=sourceGlyph.layers[thisMaster.id]		
 		
-		# thisGlyph = thisLayer.parent
-		# thisGlyphInfo = GSGlyphsInfo.glyphInfoForGlyph_( sourceGlyph )
-		# print thisGlyphInfo
-
-		# targetGlyph.layers[thisMaster.id].paths=[]
-		# targetGlyph.layers[thisMaster.id].components=[]
-		# targetGlyph.layers[thisMaster.id].anchors=[]
-		# targetGlyph.layers[thisMaster.id].setComponents_( None )
-
 		targetGlyph.layers[thisMaster.id]=sourceLayer.copyDecomposedLayer()
 		layer=targetGlyph.layers[thisMaster.id]
-		
+
 		transformNodes( layer, scaleFactors[i] )
 
-		#layer.correctPathDirection()
-
+		
+		if removeAnchors == True:
+			layer.setAnchors_( None )
+			
 		
 		if sideBearingFactor == 1 :
-			targetGlyph.leftMetricsKey=sourceGlyph.name
-			targetGlyph.rightMetricsKey=sourceGlyph.name
+			layer.setLeftMetricsKey_(sourceGlyph.name) 
+			layer.setRightMetricsKey_(sourceGlyph.name) 
 		elif sideBearingFactor == 0 :
-
-			targetGlyph.leftMetricsKey="="+sourceGlyph.name+"*"+str(scaleFactors[i])
-			targetGlyph.rightMetricsKey="="+sourceGlyph.name+"*"+str(scaleFactors[i])
+			layer.setLeftMetricsKey_(sourceGlyph.name+"*"+str(scaleFactors[i])) 
+			layer.setRightMetricsKey_(sourceGlyph.name+"*"+str(scaleFactors[i])) 
 
 		else :
-
-			targetGlyph.leftMetricsKey="="+sourceGlyph.name+"*"+str(sideBearingFactor)
-			targetGlyph.rightMetricsKey="="+sourceGlyph.name+"*"+str(sideBearingFactor)
-
+			layer.setLeftMetricsKey_(sourceGlyph.name+"*"+str(sideBearingFactor)) 
+			layer.setRightMetricsKey_(sourceGlyph.name+"*"+str(sideBearingFactor)) 
+			
+			
 		layer.syncMetrics()
+		
 		
 		i=i+1
 
