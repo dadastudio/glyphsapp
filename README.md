@@ -1,2 +1,2 @@
 # glyphsapp
-Python Scripts for Glyphs. For personal use, but whatever.
+My Python Scripts for Glyphs https://www.glyphsapp.com/. 
