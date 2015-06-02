@@ -2,23 +2,45 @@
 # -*- coding: utf-8 -*-
 __doc__="""
 Goes through all selected glyphs, makes copy and adds suffix
+
+VARIABLES:
+offset – move path up or down (-)
+suffix – add suffix like ".sc"
+sideBearingFactor – set sidebearing linking: 1 – source glyph name, 0 – values of scaleFactors, any other number
+scaleFactors – list of numbers that indicate how each master should be scaled
+makeLowercase – make new glyph name lowercase True/Flase
+removeAnchors – remove all anchors from new glyph True/Flase
+baseName – new glyph name consists form a base name of source glyph and a suffix True/Flase 
+
+
 """
 
 import GlyphsApp
-Font = Glyphs.font
-
-selectedLayers = Font.selectedLayers
 Glyphs.clearLog()
 Glyphs.showMacroWindow()
 
+Font = Glyphs.font
+
+selectedLayers = Font.selectedLayers
+
 # SMALL CAPS
 
+# offset=0
+# suffix=".sc"
+# sideBearingFactor=0
+# scaleFactors=[.78,.82,.88]
+# makeLowercase=True
+# baseName=False
+# removeAnchors=False
+
+# JUST COPY SMALL CAPS
 offset=0
 suffix=".sc"
 sideBearingFactor=0
-scaleFactors=[.78,.82,.88]
+scaleFactors=[1,1,1]
 makeLowercase=True
-baseName=True
+removeAnchors=False
+baseName=False
 
 # SUPERSCRIPT
 
@@ -28,6 +50,18 @@ baseName=True
 # scaleFactors=[.6,.6,.6]
 # makeLowercase=False
 # removeAnchors=True
+# baseName=False
+
+# DENOMINATORS (FIGURES)
+
+# offset=0
+# suffix=".dnom"
+# sideBearingFactor=.9
+# scaleFactors=[.6,.6,.6]
+# makeLowercase=False
+# removeAnchors=True
+# baseName=True
+
 
 # SUBSCRIPT
 
@@ -37,7 +71,8 @@ baseName=True
 # scaleFactors=[.6,.6,.6]
 # makeLowercase=False
 # removeAnchors=True
-targetGlyph
+# baseName=True
+
 def transformNodes( thisLayer , sf ):
 	
 	for thisPath in thisLayer.paths:
@@ -64,23 +99,31 @@ for thisLayer in selectedLayers:
 	sourceGlyphName=thisLayer.parent.name  
 	sourceGlyph=Font.glyphs[sourceGlyphName]
 
-	if makeLowercase :
-		pf=sourceGlyphName.split(".")
+	newGlyphName=""
+	pf=sourceGlyphName.split(".")
+
+	if baseName==True and makeLowercase == True  :
+		print "baseName==True and makeLowercase == True "
+		newGlyphName=pf[0].lower() + suffix
+
+	elif baseName==False and makeLowercase == True:
+		print "baseName==False and makeLowercase == True"
+		
 		pf[0]= pf[0].lower()		
-		newGlyphName=""
+		
 		for x in pf:
 			newGlyphName=newGlyphName + "." + x	
 
 		newGlyphName = newGlyphName[1:len(newGlyphName)] + suffix
 
-	else:
-		newGlyphName=sourceGlyphName + suffix
-	
-	if baseName:
-		pf=sourceGlyphName.split(".")
+	elif baseName==True and makeLowercase == False:
+		print "baseName==True and makeLowercase == False"
 		newGlyphName=pf[0] + suffix
+	else:
+		print "baseName==False and makeLowercase == False"
+		newGlyphName=sourceGlyphName + suffix
 
-	if Font.glyphs[newGlyphName]:		
+	if Font.glyphs[newGlyphName]:								# if a glyph exists
 
 		targetGlyph=Font.glyphs[newGlyphName]
 	else:		
@@ -92,15 +135,19 @@ for thisLayer in selectedLayers:
 
 		sourceLayer=sourceGlyph.layers[thisMaster.id]		
 		
+		# ALTERNATIVE WAY OF COPYING LAYER
+		# sourceComponent = GSComponent( sourceGlyphName )
+		# layer=targetGlyph.layers[thisMaster.id]
+		# layer.components.append(sourceComponent)		
+		# layer.decomposeComponents()
+
 		targetGlyph.layers[thisMaster.id]=sourceLayer.copyDecomposedLayer()
 		layer=targetGlyph.layers[thisMaster.id]
 
 		transformNodes( layer, scaleFactors[i] )
 
-		
 		if removeAnchors == True:
 			layer.setAnchors_( None )
-			
 		
 		if sideBearingFactor == 1 :
 			layer.setLeftMetricsKey_(sourceGlyph.name) 
