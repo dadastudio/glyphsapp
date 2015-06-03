@@ -79,10 +79,10 @@ class AnchorsCheck(object):
 								
 
 	def GetAnchorNames(self):
-		return ["top","bottom","center"]
+		return ["_top","top","bottom","center"]
 
 	def GetSubCategoryNames(self):
-		return ["Uppercase","Lowercase","Smallcaps"]
+		return ["Uppercase","Lowercase","Smallcaps","Combining","Nonspacing","Spacing","Superscript","Modifier","Decimal Digit","Fraction","Parenthesis","Dash","Quote","Space","Format","Currency","Math","Arrow","Other"]
 
 
 
