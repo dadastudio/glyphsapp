@@ -5,8 +5,16 @@ test
 """
 
 import GlyphsApp
+import vanilla
 Font = Glyphs.font
 
-selectedLayers = Font.selectedLayers
 Glyphs.clearLog()
 Glyphs.showMacroWindow()
+
+for l in Font.selectedLayers:
+	if l.anchors["origin"]:
+		del(l.anchors["origin"])
+		# print l.anchors["origin"]
+
+		
+
