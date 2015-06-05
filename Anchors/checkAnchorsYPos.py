@@ -1,10 +1,11 @@
 #MenuTitle: Check Anchors
 # -*- coding: utf-8 -*-
 __doc__="""
-check anchors across the font
+Checks anchors across the font and optionally corrects positions respecting italic angle
 """
 import GlyphsApp
 import vanilla
+import math
 Font = Glyphs.font
 
 Glyphs.clearLog()
@@ -38,6 +39,9 @@ class AnchorsCheck(object):
 		
 		self.w.center()
 		self.w.correctButton.enable(False)
+	
+	def italicSkew(self, x, y ):
+		return x + ( y * math.tan( ( Font.selectedFontMaster.italicAngle / 180 ) * math.pi ) )
 
 	def check(self):
 		self.w.open()
@@ -50,14 +54,18 @@ class AnchorsCheck(object):
 		Glyphs.clearLog()
 		anchors=self.GetAnchorNames()
 		anchor=anchors[self.w.anchor_name.get()]
-		print self.glyphs2Correct
 		
+
 
 		for gl in self.glyphs2Correct:
 			m=gl.layers[Font.selectedFontMaster.id]
-			m.anchors[anchor].y=int(self.w.setY.get())+2
-			m.anchors[anchor].y=int(self.w.setY.get())
-		
+			
+			mAnchor=m.anchors[anchor]
+			yTarget=int(self.w.setY.get())
+			
+			mAnchor.x = self.italicSkew( mAnchor.x, yTarget-mAnchor.y )
+			mAnchor.y=yTarget
+			
 
 	def MoveCallback( self, sender ):
 		master=Font.selectedFontMaster.name
