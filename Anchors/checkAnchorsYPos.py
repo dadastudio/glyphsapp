@@ -40,7 +40,7 @@ class AnchorsCheck(object):
 		self.w.center()
 		self.w.correctButton.enable(False)
 	
-	def italicSkew(self, x, y ):
+	def getItalic(self, x, y ):
 		return x + ( y * math.tan( ( Font.selectedFontMaster.italicAngle / 180 ) * math.pi ) )
 
 	def check(self):
@@ -63,7 +63,7 @@ class AnchorsCheck(object):
 			mAnchor=m.anchors[anchor]
 			yTarget=int(self.w.setY.get())
 			
-			mAnchor.x = self.italicSkew( mAnchor.x, yTarget-mAnchor.y )
+			mAnchor.x = self.getItalic( mAnchor.x, yTarget-mAnchor.y )
 			mAnchor.y=yTarget
 			
 

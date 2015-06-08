@@ -60,7 +60,7 @@ def DeleteCallback(sender):
 	except:
 		print "Error: UPs."
 	
-w = vanilla.FloatingWindow( (300, 130), "Delete Anchor", minSize=(300,130), maxSize=(1000,130) )
+w = vanilla.FloatingWindow( (300, 130), "Delete Anchor")
 w.text_1 = vanilla.TextBox((leftMargin, setLineHeight(), 50, 14), "Anchor:", sizeStyle='small' )
 w.anchor_name = vanilla.PopUpButton((leftMargin+60, setLineHeight()-2, -leftMargin, 20), GetAnchorNames(), sizeStyle='small' )
 
