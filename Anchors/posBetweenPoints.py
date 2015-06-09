@@ -1,7 +1,7 @@
-#MenuTitle: Position anchor along the node
+#MenuTitle: Position anchor between two selected nodes
 # -*- coding: utf-8 -*-
 __doc__="""
-Position anchor along the node respecting italic angle or any given
+Position anchor between two selected nodes respecting italic angle or any given
 """
 
 import GlyphsApp
@@ -34,23 +34,24 @@ def GetAnchorNames():
 	return sorted( myAnchorList )
 def setLineHeight(i=0):
 		return lineHeight*i+leftMargin
-
 def moveCallback(sender):
 
 	selectedLayer = Font.selectedLayers[0]
 	try:
 		selection = selectedLayer.selection()
 		
-		if selection.count() == 1:
-			s=selection[0]
+		if selection.count() == 2:
+			s1=selection[0]
+			s2=selection[1]			
 			a=selectedLayer.anchors[GetAnchorNames()[w.anchor_name.get()]]
-			if s.y > a.y:
-				yTarget=-s.y+a.y
+
+			if s1.y > a.y:
+				yTarget=-s1.y+a.y
 			else:
-				yTarget=a.y-s.y
-			a.x=getItalic(s.x,yTarget, float(w.angle_text.get()))
+				yTarget=a.y-s1.y
+
+			a.x=getItalic(s1.x-(s1.x-s2.x)/2,yTarget, float(w.angle_text.get()))
 		else:
-			Glyphs.showMacroWindow()
 			print "Make a selection!"
 	except Exception, e:
 		Glyphs.showMacroWindow()
@@ -61,12 +62,12 @@ def moveCallback(sender):
 			print e
 
 
-w = vanilla.FloatingWindow( (300, 130), "Position under the node")
+w = vanilla.FloatingWindow( (300, 150), "Position between nodes")
 w.anchor_label = vanilla.TextBox((leftMargin, setLineHeight(), 50, 14), "Anchor:", sizeStyle='small' )
 w.anchor_name = vanilla.PopUpButton((leftMargin+60, setLineHeight()-4, -leftMargin, 20), GetAnchorNames(), sizeStyle='small' )
 
 w.angle_label = vanilla.TextBox((leftMargin, setLineHeight(1), 0, 14), "Angle", sizeStyle='small' )
-w.angle_text = vanilla.EditText((leftMargin+60, setLineHeight(1)-4, 0, 20), str(Font.selectedFontMaster.italicAngle), sizeStyle='small' )
+w.angle_text = vanilla.EditText((leftMargin+60, setLineHeight(1)-4, -leftMargin, 20), str(Font.selectedFontMaster.italicAngle), sizeStyle='small' )
 
 w.mainButton = vanilla.Button((-leftMargin-150, -40, 150, -leftMargin), "Move", sizeStyle='regular', callback=moveCallback )
 w.setDefaultButton( w.mainButton )
