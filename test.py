@@ -31,7 +31,7 @@ def setWidthCallback(sender):
 	selection = selectedLayer.selection()
 	if selection.count() ==2:
 		selection[0].x=int(selection[0].x)
-		selection[0].x=selection[1].x+float(w.angle_text.get())
+		selection[0].x=selection[1].x+float(w.offset_text.get())
 
 
 def moveCallback(sender):
@@ -51,36 +51,39 @@ def moveCallback(sender):
 			yTarget=movePoint.y-firstPoint.y
 
 
-		italic=getItalic(firstPoint.x,yTarget,8.0)
+		italic=getItalic(firstPoint.x,yTarget,float(w.angle_text.get()))
 
-		movePoint.x=italic+float(w.angle_text.get())+1
-		movePoint.x=italic+float(w.angle_text.get())
+		movePoint.x=italic+float(w.offset_text.get())+1
+		movePoint.x=italic+float(w.offset_text.get())
 		
 
 def selectCallback(sender):
 	global selection
 
-	w.angle_text.setItems(Font.selectedFontMaster.verticalStems)
+	w.offset_text.setItems(Font.selectedFontMaster.verticalStems)
 
 	selection = selectedLayer.selection()
 	if selection.count() == 1:
 		firstPoint.x=selection[0].x
 		firstPoint.y=selection[0].y
 
-w = vanilla.FloatingWindow( (300, 136), "Align Nodes")
+w = vanilla.FloatingWindow( (300, 146), "Align Nodes")
 # w.anchor_label = vanilla.TextBox((leftMargin, setLineHeight(), 50, 14), "Anchor:", sizeStyle='small' )
 # w.anchor_name = vanilla.PopUpButton((leftMargin+60, setLineHeight()-4, -leftMargin, 20), GetAnchorNames(), sizeStyle='small' )
 
 
 w.selectButton = vanilla.Button((leftMargin, setLineHeight(), -leftMargin, leftMargin), "Select", sizeStyle='regular', callback=selectCallback )
 
-w.angle_label = vanilla.TextBox((leftMargin, setLineHeight(1), 0, 14), "Offset", sizeStyle='small' )
+w.offset_label = vanilla.TextBox((leftMargin, setLineHeight(1), 0, 14), "Offset", sizeStyle='small' )
+w.offset_text = vanilla.ComboBox((leftMargin+60, setLineHeight(1)-4, -leftMargin, 20), Font.selectedFontMaster.verticalStems, sizeStyle='small' )
 
-w.angle_text = vanilla.ComboBox((leftMargin+60, setLineHeight(1)-4, -leftMargin, 20), Font.selectedFontMaster.verticalStems, sizeStyle='small' )
-w.moveButton = vanilla.Button((leftMargin, setLineHeight(2), -leftMargin, leftMargin), "Move", sizeStyle='regular', callback=moveCallback )
+w.angle_label = vanilla.TextBox((leftMargin, setLineHeight(2), 0, 14), "Angle", sizeStyle='small' )
+w.angle_text = vanilla.EditText((leftMargin+60, setLineHeight(2)-4, -leftMargin, 20), Font.selectedFontMaster.italicAngle, sizeStyle='small' )
+
+w.moveButton = vanilla.Button((leftMargin, setLineHeight(3), -leftMargin, leftMargin), "Move", sizeStyle='regular', callback=moveCallback )
 
 
-w.angle_text.set("0")
+w.offset_text.set("0")
 # w.setDefaultButton( w.mainButton )
 # w.widthButton = vanilla.Button((leftMargin, setLineHeight(3), -leftMargin, leftMargin), "Correct Width", sizeStyle='regular', callback=setWidthCallback )
 	

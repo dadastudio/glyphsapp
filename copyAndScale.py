@@ -14,7 +14,7 @@ baseName – new glyph name consists form a base name of source glyph and a suff
 
 
 """
-
+import sys
 import GlyphsApp
 import vanilla
 
@@ -22,64 +22,16 @@ Glyphs.clearLog()
 Glyphs.showMacroWindow()
 
 Font = Glyphs.font
+
 leftMargin=15
 lineHeight=30
-def setLineHeight(i=0):
-		return lineHeight*i+leftMargin
 
 selectedLayers = Font.selectedLayers
 masterScaleList=[]
 
+def setLineHeight(i=0):
+		return lineHeight*i+leftMargin
 
-# SMALL CAPS
-
-# offset=0
-# suffix=".sc"
-sideBearingFactor=0
-scaleFactors=[.78,.82,.88]
-makeLowercase=True
-baseName=False
-removeAnchors=False
-
-# JUST COPY SMALL CAPS
-# offset=0
-# suffix=".sc"
-# sideBearingFactor=0
-# scaleFactors=[1,1,1]
-# makeLowercase=True
-# removeAnchors=False
-# baseName=False
-
-# SUPERSCRIPT
-
-# offset=250
-# suffix=".sups"
-# sideBearingFactor=.9
-# scaleFactors=[.6,.6,.6]
-# makeLowercase=False
-# removeAnchors=True
-# baseName=False
-
-# DENOMINATORS (FIGURES)
-
-# offset=0
-# suffix=".dnom"
-# sideBearingFactor=.9
-# scaleFactors=[.6,.6,.6]
-# makeLowercase=False
-# removeAnchors=True
-# baseName=True
-
-
-# SUBSCRIPT
-
-# offset=-150
-# suffix=".subs"
-# sideBearingFactor=.9
-# scaleFactors=[.6,.6,.6]
-# makeLowercase=False
-# removeAnchors=True
-# baseName=True
 
 def transformNodes( thisLayer , sf ):
 	offset=int(w.offset_text.get())
@@ -102,25 +54,16 @@ def transformNodes( thisLayer , sf ):
 			
 
 def scale(sender) :
+	scaleFactors=[]
 	Font.disableUpdateInterface() 
 
-
 	suffixList=GetSuffixNames()
-	
 	suffix=suffixList[w.suffix_combo.get()]
 
-	i=0
 	for msl in masterScaleList:
-		scaleFactors[i]=msl.get()
-
-		i=i+1
-
-	# sideBearingFactor=0
-	# scaleFactors=[1,1,1]
-	# makeLowercase=True
-	# removeAnchors=False
-	# baseName=False
-
+		scaleFactors.append(float(msl.get())/100)
+		
+	
 	for thisLayer in selectedLayers:
 		
 		sourceGlyphName=thisLayer.parent.name  
@@ -128,6 +71,9 @@ def scale(sender) :
 
 		newGlyphName=""
 		pf=sourceGlyphName.split(".")
+		
+		baseName=w.baseName_checkbox
+		makeLowercase=w.lowerCase_checkbox
 
 		if baseName==True and makeLowercase == True  :
 			print "baseName==True and makeLowercase == True "
@@ -150,7 +96,7 @@ def scale(sender) :
 		else:
 			print "baseName==False and makeLowercase == False"
 			newGlyphName=sourceGlyphName + suffix
-
+		
 		if Font.glyphs[newGlyphName]:								# if a glyph exists
 
 			targetGlyph=Font.glyphs[newGlyphName]
@@ -174,9 +120,12 @@ def scale(sender) :
 			layer=targetGlyph.layers[thisMaster.id]
 
 			transformNodes( layer, scaleFactors[i] )
-
+			removeAnchors= w.removeAnchors_checkbox.get()
+			
 			if removeAnchors == True:
 				layer.setAnchors_( None )
+
+			sideBearingFactor=w.sbFactors_combo.get()
 			
 			if sideBearingFactor == 1 :
 				layer.setLeftMetricsKey_(sourceGlyph.name) 
@@ -191,14 +140,15 @@ def scale(sender) :
 				
 			layer.syncMetrics()
 			i=i+1
-
-
-	Font.enableUpdateInterface() 
+			""""""
+		
+	Font.enableUpdateInterface()
+	
 scOffset=90
 def GetSuffixNames():
 	return [".sc",".sups",".subs",".dnom"]
 def GetPresets():
-	return ["Small Caps","Supscript","Subscript","Denominators"]
+	return ["Choose...","Supscript","Subscript","Denominators"]
 
 def getLabel(text,lH=0):
 	return vanilla.TextBox((leftMargin, setLineHeight(lH), 80, 14), text, sizeStyle='small' )
@@ -214,109 +164,50 @@ def getEditText(lH=0):
 
 def onPresetsChange(sender):
 
-	# SMALL CAPS
-
-# offset=0
-# suffix=".sc"
-# sideBearingFactor=0
-# scaleFactors=[.78,.82,.88]
-# makeLowercase=True
-# baseName=False
-# removeAnchors=False
-
-# JUST COPY SMALL CAPS
-# offset=0
-# suffix=".sc"
-# sideBearingFactor=0
-# scaleFactors=[1,1,1]
-# makeLowercase=True
-# removeAnchors=False
-# baseName=False
-
-
 	item=sender.get()
 
-	if item == 0: #Small Caps
+	if item == 0: #Reset
 		w.suffix_combo.set(0)
 		w.offset_text.set(0)
-		
-
-
-
-
 		w.baseName_checkbox.set(False)
-		w.lowerCase_checkbox.set(True)
+		w.lowerCase_checkbox.set(False)
 		w.removeAnchors_checkbox.set(False)
-
 		w.sbFactors_combo.set(0)
+		for m in masterScaleList:
+			m.set("")
 
 	elif item == 1:#superscirpt
-
-
-# SUPERSCRIPT
-
-# offset=250
-# suffix=".sups"
-# sideBearingFactor=.9
-# scaleFactors=[.6,.6,.6]
-# makeLowercase=False
-# removeAnchors=True
-# baseName=False
 
 		masterScaleList
 		w.suffix_combo.set(1)
 		w.offset_text.set(250)
 		w.sbFactors_combo.set(.9)
-
-
-
 		w.baseName_checkbox.set(False)
 		w.lowerCase_checkbox.set(False)
 		w.removeAnchors_checkbox.set(True)
+		for m in masterScaleList:
+			m.set("60")
 
 	elif item == 2:#subscript
-
-# SUBSCRIPT
-
-# offset=-150
-# suffix=".subs"
-# sideBearingFactor=.9
-# scaleFactors=[.6,.6,.6]
-# makeLowercase=False
-# removeAnchors=True
-# baseName=True
 
 		w.suffix_combo.set(2)
 		w.offset_text.set(-150)
 		w.sbFactors_combo.set(.9)
-
-		w.baseName_checkbox.set(True)
+		w.baseName_checkbox.set(False)
 		w.lowerCase_checkbox.set(False)
 		w.removeAnchors_checkbox.set(True)
-
-
+		for m in masterScaleList:
+			m.set("60")
 	elif item == 3: #denominators
-
-	# DENOMINATORS (FIGURES)
-
-# offset=0
-# suffix=".dnom"
-# sideBearingFactor=.9
-# scaleFactors=[.6,.6,.6]
-# makeLowercase=False
-# removeAnchors=True
-# baseName=True
 
 		w.suffix_combo.set(3)
 		w.offset_text.set(0)
 		w.sbFactors_combo.set(.9)
-
-		w.baseName_checkbox.set(True)
+		w.baseName_checkbox.set(False)
 		w.lowerCase_checkbox.set(False)
 		w.removeAnchors_checkbox.set(True)
-
-
-
+		for m in masterScaleList:
+			m.set("60")
 
 w = vanilla.FloatingWindow( (370, 300), "Copy and Scale")
 
@@ -329,23 +220,25 @@ w.offset_text = getEditText(1)
 w.factors_label = getLabel("Scale %: ",2)
 xOff=0
 
+
 for m in Font.masters:
 	
-	exec("w.master_"+m.name+"_label=vanilla.TextBox((leftMargin+scOffset+"+str(xOff)+", setLineHeight(2), 65, 20),'"+m.name+"', sizeStyle='small')")
+	mname=m.name.split()[0]
+
+	exec("w.master_"+mname+"_label=vanilla.TextBox((leftMargin+scOffset+"+str(xOff)+", setLineHeight(2), 65, 20),'"+mname+"', sizeStyle='small')")
 	
 	eti=vanilla.EditText((leftMargin+scOffset+xOff, setLineHeight(2.7), 65, 20), sizeStyle='small')
 
 	masterScaleList.append(eti)
 
-	exec("w.master_"+m.name+"_input=eti")
+	exec("w.master_"+mname+"_input=eti")
 	
 	xOff=xOff+70
-
+	
 
 sbf=getLabel("SB Factor:",3.7)
 w.sidebearing_label=sbf
-sbf.set("dupa")
-# w.sb_text = getEditText(3.7)
+
 w.sbFactors_combo = vanilla.ComboBox((leftMargin+scOffset, setLineHeight(3.7), -leftMargin, 20),["0", "1"], sizeStyle='small')
 w.options_label = getLabel("Options: ",4.7)
 
