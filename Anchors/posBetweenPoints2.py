@@ -10,7 +10,7 @@ import math
 Font = Glyphs.font
 
 Glyphs.clearLog()
-Glyphs.showMacroWindow()
+
 leftMargin=15
 lineHeight=30
 
@@ -39,9 +39,9 @@ def moveCallback(sender):
 
 	selectedLayer = Font.selectedLayers[0]
 	try:
-		selection = selectedLayer.selection()
+		selection = selectedLayer.selection
 		
-		if selection.count() == 2:
+		if len(selection) == 2:
 			s=selection[0]
 			a=selection[1]
 			# a=selectedLayer.anchors[GetAnchorNames()[w.anchor_name.get()]]

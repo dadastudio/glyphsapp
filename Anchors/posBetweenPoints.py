@@ -10,7 +10,7 @@ import math
 Font = Glyphs.font
 
 Glyphs.clearLog()
-Glyphs.showMacroWindow()
+
 leftMargin=15
 lineHeight=30
 
@@ -38,9 +38,11 @@ def moveCallback(sender):
 
 	selectedLayer = Font.selectedLayers[0]
 	try:
-		selection = selectedLayer.selection()
+		selection = selectedLayer.selection
 		
-		if selection.count() == 2:
+		print selection
+
+		if len(selection) == 2:
 			s1=selection[0]
 			s2=selection[1]			
 			a=selectedLayer.anchors[GetAnchorNames()[w.anchor_name.get()]]
@@ -55,11 +57,7 @@ def moveCallback(sender):
 			print "Make a selection!"
 	except Exception, e:
 		Glyphs.showMacroWindow()
-		if selection == ():
-			print "Cannot distribute nodes: nothing selected in frontmost layer."
-		else:
-			print "Error. Cannot distribute nodes:", selection
-			print e
+		print e
 
 
 w = vanilla.FloatingWindow( (300, 150), "Position between nodes")

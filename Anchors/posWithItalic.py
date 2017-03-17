@@ -9,8 +9,8 @@ import vanilla
 import math
 Font = Glyphs.font
 
-Glyphs.clearLog()
-Glyphs.showMacroWindow()
+# Glyphs.clearLog()
+# Glyphs.showMacroWindow()
 leftMargin=15
 lineHeight=30
 
@@ -39,7 +39,7 @@ def moveCallback(sender):
 
 	selectedLayer = Font.selectedLayers[0]
 	try:
-		selection = selectedLayer.selection()
+		selection = selectedLayer.selection
 		
 		if selection.count() == 1:
 			s=selection[0]

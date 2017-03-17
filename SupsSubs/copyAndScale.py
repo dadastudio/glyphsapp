@@ -1,4 +1,4 @@
-#MenuTitle: Makes copies with suffix
+#MenuTitle: Copy and Scale with Suffix
 # -*- coding: utf-8 -*-
 __doc__="""
 Goes through all selected glyphs, makes copy and adds suffix
@@ -14,12 +14,12 @@ baseName – new glyph name consists form a base name of source glyph and a suff
 
 
 """
-import sys
+
 import GlyphsApp
 import vanilla
 
-Glyphs.clearLog()
-Glyphs.showMacroWindow()
+#Glyphs.clearLog()
+#Glyphs.showMacroWindow()
 
 Font = Glyphs.font
 
@@ -35,6 +35,12 @@ def setLineHeight(i=0):
 
 def transformNodes( thisLayer , sf ):
 	offset=int(w.offset_text.get())
+	
+	if w.offset_checkbox.get():
+		xHeight= Font.selectedFontMaster.xHeight * sf
+	
+		offset-=xHeight/2
+
 	for thisPath in thisLayer.paths:
 		for thisNode in thisPath.nodes:
 
@@ -72,15 +78,13 @@ def scale(sender) :
 		newGlyphName=""
 		pf=sourceGlyphName.split(".")
 		
-		baseName=w.baseName_checkbox
-		makeLowercase=w.lowerCase_checkbox
-
-		if baseName==True and makeLowercase == True  :
-			print "baseName==True and makeLowercase == True "
+		baseName=w.baseName_checkbox.get()
+		makeLowercase=w.lowerCase_checkbox.get()
+		
+		if baseName==1 and makeLowercase == 1  :
 			newGlyphName=pf[0].lower() + suffix
 
-		elif baseName==False and makeLowercase == True:
-			print "baseName==False and makeLowercase == True"
+		elif baseName==0 and makeLowercase == 1:
 			
 			pf[0]= pf[0].lower()		
 			
@@ -88,16 +92,14 @@ def scale(sender) :
 				newGlyphName=newGlyphName + "." + x	
 
 			newGlyphName = newGlyphName[1:len(newGlyphName)] + suffix
-			print newGlyphName
-
-		elif baseName==True and makeLowercase == False:
-			print "baseName==True and makeLowercase == False"
+			
+		elif baseName==1 and makeLowercase == 0:
 			newGlyphName=pf[0] + suffix
+			print newGlyphName
 		else:
-			print "baseName==False and makeLowercase == False"
 			newGlyphName=sourceGlyphName + suffix
-		
-		if Font.glyphs[newGlyphName]:								# if a glyph exists
+			
+		if Font.glyphs[newGlyphName]:# if a glyph exists
 
 			targetGlyph=Font.glyphs[newGlyphName]
 		else:		
@@ -118,11 +120,10 @@ def scale(sender) :
 
 			targetGlyph.layers[thisMaster.id]=sourceLayer.copyDecomposedLayer()
 			layer=targetGlyph.layers[thisMaster.id]
-
-			transformNodes( layer, scaleFactors[i] )
-			removeAnchors= w.removeAnchors_checkbox.get()
 			
-			if removeAnchors == True:
+			transformNodes( layer, scaleFactors[i] )
+			
+			if w.removeAnchors_checkbox.get() == True:
 				layer.setAnchors_( None )
 
 			sideBearingFactor=w.sbFactors_combo.get()
@@ -139,16 +140,15 @@ def scale(sender) :
 				layer.setRightMetricsKey_(sourceGlyph.name+"*"+str(sideBearingFactor)) 
 				
 			layer.syncMetrics()
-			i=i+1
-			""""""
-		
+			i+=1
+				
 	Font.enableUpdateInterface()
 	
 scOffset=90
 def GetSuffixNames():
-	return [".sc",".sups",".subs",".dnom"]
+	return ["Choose...",".sups",".subs",".numr",".dnom",".ordn"]
 def GetPresets():
-	return ["Choose...","Supscript","Subscript","Denominators"]
+	return ["Choose...","Superscript","Subscript","Numerators","Denominators","Ordinals"]
 
 def getLabel(text,lH=0):
 	return vanilla.TextBox((leftMargin, setLineHeight(lH), 80, 14), text, sizeStyle='small' )
@@ -180,7 +180,8 @@ def onPresetsChange(sender):
 
 		masterScaleList
 		w.suffix_combo.set(1)
-		w.offset_text.set(250)
+		w.offset_text.set(Font.selectedFontMaster.capHeight)
+		w.offset_checkbox.set(True)
 		w.sbFactors_combo.set(.9)
 		w.baseName_checkbox.set(False)
 		w.lowerCase_checkbox.set(False)
@@ -191,23 +192,54 @@ def onPresetsChange(sender):
 	elif item == 2:#subscript
 
 		w.suffix_combo.set(2)
-		w.offset_text.set(-150)
+		w.offset_text.set(0)
+		w.offset_checkbox.set(True)
 		w.sbFactors_combo.set(.9)
 		w.baseName_checkbox.set(False)
 		w.lowerCase_checkbox.set(False)
 		w.removeAnchors_checkbox.set(True)
 		for m in masterScaleList:
 			m.set("60")
-	elif item == 3: #denominators
+
+	elif item == 3: #numerators
 
 		w.suffix_combo.set(3)
+		off=Font.selectedFontMaster.capHeight-offset*.6
+		w.offset_text.set(off)
+		w.offset_checkbox.set(False)
+		w.sbFactors_combo.set(.9)
+		w.baseName_checkbox.set(False)
+		w.lowerCase_checkbox.set(False)
+		w.removeAnchors_checkbox.set(True)
+		for m in masterScaleList:
+			m.set("60")		
+
+	elif item == 4: #denominators
+
+		w.suffix_combo.set(4)
 		w.offset_text.set(0)
+		w.offset_checkbox.set(False)
 		w.sbFactors_combo.set(.9)
 		w.baseName_checkbox.set(False)
 		w.lowerCase_checkbox.set(False)
 		w.removeAnchors_checkbox.set(True)
 		for m in masterScaleList:
 			m.set("60")
+
+	elif item == 5: #ordinals
+		print "ord"
+		w.suffix_combo.set(5)
+
+		off=Font.selectedFontMaster.capHeight-Font.selectedFontMaster.ascender*.6
+		w.offset_text.set(off)
+		w.offset_checkbox.set(False)
+		w.sbFactors_combo.set(.9)
+		w.baseName_checkbox.set(False)
+		w.lowerCase_checkbox.set(False)
+		w.removeAnchors_checkbox.set(True)
+		for m in masterScaleList:
+			m.set("60")
+
 
 w = vanilla.FloatingWindow( (370, 300), "Copy and Scale")
 
@@ -215,7 +247,10 @@ w.suffix_label = getLabel("Suffix: ",0)
 w.suffix_combo = getPopUpButton(GetSuffixNames(),0)
 
 w.offset_label = getLabel("Offset: ",1)
-w.offset_text = getEditText(1)
+w.offset_text = vanilla.EditText((leftMargin+scOffset, setLineHeight(1), 60, 20), sizeStyle='small')
+w.offset_checkbox= vanilla.CheckBox((leftMargin+scOffset+70, setLineHeight(1), -leftMargin, 20), "Center", value=True,sizeStyle='small')
+
+# w.offset_text = getEditText(1)
 
 w.factors_label = getLabel("Scale %: ",2)
 xOff=0
@@ -223,9 +258,9 @@ xOff=0
 
 for m in Font.masters:
 	
-	mname=m.name.split()[0]
+	mname=m.name.split()[0] # name cannot have a space – to do: improve it
 
-	exec("w.master_"+mname+"_label=vanilla.TextBox((leftMargin+scOffset+"+str(xOff)+", setLineHeight(2), 65, 20),'"+mname+"', sizeStyle='small')")
+	exec("w.master_"+mname+"_label=vanilla.TextBox((leftMargin+scOffset+"+str(xOff)+", setLineHeight(2), 65, 20),'"+m.name+"', sizeStyle='small')")
 	
 	eti=vanilla.EditText((leftMargin+scOffset+xOff, setLineHeight(2.7), 65, 20), sizeStyle='small')
 
@@ -233,22 +268,19 @@ for m in Font.masters:
 
 	exec("w.master_"+mname+"_input=eti")
 	
-	xOff=xOff+70
+	xOff+=70
 	
 
-sbf=getLabel("SB Factor:",3.7)
-w.sidebearing_label=sbf
+w.sidebearing_label=getLabel("SB Factor:",3.7)
 
 w.sbFactors_combo = vanilla.ComboBox((leftMargin+scOffset, setLineHeight(3.7), -leftMargin, 20),["0", "1"], sizeStyle='small')
 w.options_label = getLabel("Options: ",4.7)
 
 w.baseName_checkbox=getCheckbox("Only Base Name",3+1.7)
-
 w.lowerCase_checkbox=getCheckbox("Make lowercase",3.7+1.7)
 w.removeAnchors_checkbox=getCheckbox("Delete Anchors",4.4+1.7)
 
 w.presetsBtnLabel=getLabel("Presets: ",7)
-# w.presetsBtn=getPopUpButton(GetPresets(),7,onPresetsChange)
 w.presetsBtn=vanilla.PopUpButton((leftMargin+scOffset, setLineHeight(7)-3, -leftMargin, 20), GetPresets(),callback=onPresetsChange ,sizeStyle='small' )
 
 w.mainButton = vanilla.Button((-leftMargin-150, -40, 150, -leftMargin), "Copy and Scale", sizeStyle='regular', callback=scale )

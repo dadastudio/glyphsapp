@@ -52,7 +52,7 @@ def moveCallback(sender):
 	Glyphs.showMacroWindow()
 	
 	selection=[]
-	selection = selectedLayer.selection()
+	selection = selectedLayer.selection
 	
 	print "------------------------ "
 	print "moveCallback "
