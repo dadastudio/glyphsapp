@@ -35,7 +35,8 @@ def transformNodes( thisLayer , sf ):
 
 
 def setSidebearings(baseName,supG):
-	values={"Light":".6","Regular":".6","Bold":".6"} #Macho
+	values={"Light":".6","SemiBold":".6"} #Atoli
+	# values={"Light":".6","Regular":".6","Bold":".6"} #Macho
 	# values={"Light":".82","Regular":".82","Bold":".82"} #servus
 	
 	supGlyph=Font.glyphs[supG]

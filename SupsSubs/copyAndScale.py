@@ -18,38 +18,47 @@ baseName – new glyph name consists form a base name of source glyph and a suff
 import GlyphsApp
 import vanilla
 
-#Glyphs.clearLog()
-#Glyphs.showMacroWindow()
+# Glyphs.clearLog()
+# Glyphs.showMacroWindow()
 
 Font = Glyphs.font
-
+scaleFactor=.6
 leftMargin=15
 lineHeight=30
-
+offset=0
 selectedLayers = Font.selectedLayers
 masterScaleList=[]
+
+preset="none"
 
 def setLineHeight(i=0):
 		return lineHeight*i+leftMargin
 
 
 def transformNodes( thisLayer , sf ):
-	offset=int(w.offset_text.get())
-	
-	if w.offset_checkbox.get():
-		xHeight= Font.selectedFontMaster.xHeight * sf
-	
-		offset-=xHeight/2
+
+	global preset
+
+	xHeight= Font.selectedFontMaster.xHeight*(1- sf)
+	offset=0
+	if preset=="numerators":		
+		offset=Font.selectedFontMaster.capHeight-xHeight*2	 
+		
+	if preset=="superscirpt":
+		offset=Font.selectedFontMaster.capHeight -xHeight
+
+	if preset=="subscript":
+		offset=-xHeight
+
 
 	for thisPath in thisLayer.paths:
 		for thisNode in thisPath.nodes:
 
 			pos = thisNode.position
 			pos.x = pos.x * sf
-			pos.y = pos.y * sf
+			pos.y = pos.y * sf + offset
 			thisNode.position = pos
 
-			thisNode.y += offset
 
 	for thisAnchor in thisLayer.anchors:
 		apos=thisAnchor.position
@@ -60,6 +69,7 @@ def transformNodes( thisLayer , sf ):
 			
 
 def scale(sender) :
+	global scaleFactor
 	scaleFactors=[]
 	Font.disableUpdateInterface() 
 
@@ -95,7 +105,6 @@ def scale(sender) :
 			
 		elif baseName==1 and makeLowercase == 0:
 			newGlyphName=pf[0] + suffix
-			print newGlyphName
 		else:
 			newGlyphName=sourceGlyphName + suffix
 			
@@ -108,37 +117,28 @@ def scale(sender) :
 
 
 		i=0	
+		
 		for thisMaster in Font.masters:		
 
 			sourceLayer=sourceGlyph.layers[thisMaster.id]		
 			
-			# ALTERNATIVE WAY OF COPYING LAYER
-			# sourceComponent = GSComponent( sourceGlyphName )
-			# layer=targetGlyph.layers[thisMaster.id]
-			# layer.components.append(sourceComponent)		
-			# layer.decomposeComponents()
-
 			targetGlyph.layers[thisMaster.id]=sourceLayer.copyDecomposedLayer()
+
+			# instance=Glyphs.font.instances[0]
+		 #  instance.weightValue=w.offset_text.get()
+		 #  interpolated = instance.interpolatedFont
+
+
 			layer=targetGlyph.layers[thisMaster.id]
 			
-			transformNodes( layer, scaleFactors[i] )
+			transformNodes( layer, scaleFactor )
 			
 			if w.removeAnchors_checkbox.get() == True:
 				layer.setAnchors_( None )
 
-			sideBearingFactor=w.sbFactors_combo.get()
-			
-			if sideBearingFactor == 1 :
-				layer.setLeftMetricsKey_(sourceGlyph.name) 
-				layer.setRightMetricsKey_(sourceGlyph.name) 
-			elif sideBearingFactor == 0 :
-				layer.setLeftMetricsKey_(sourceGlyph.name+"*"+str(scaleFactors[i])) 
-				layer.setRightMetricsKey_(sourceGlyph.name+"*"+str(scaleFactors[i])) 
+			layer.setLeftMetricsKey_(sourceGlyph.name+"*"+str(scaleFactor)) 
+			layer.setRightMetricsKey_(sourceGlyph.name+"*"+str(scaleFactor)) 
 
-			else :
-				layer.setLeftMetricsKey_(sourceGlyph.name+"*"+str(sideBearingFactor)) 
-				layer.setRightMetricsKey_(sourceGlyph.name+"*"+str(sideBearingFactor)) 
-				
 			layer.syncMetrics()
 			i+=1
 				
@@ -163,10 +163,11 @@ def getEditText(lH=0):
 	return vanilla.EditText((leftMargin+scOffset, setLineHeight(lH), -leftMargin, 20), sizeStyle='small')
 
 def onPresetsChange(sender):
-
+	global preset
 	item=sender.get()
 
 	if item == 0: #Reset
+		preset="none"
 		w.suffix_combo.set(0)
 		w.offset_text.set(0)
 		w.baseName_checkbox.set(False)
@@ -177,25 +178,25 @@ def onPresetsChange(sender):
 			m.set("")
 
 	elif item == 1:#superscirpt
-
-		masterScaleList
+		preset="superscirpt"
+		# masterScaleList
 		w.suffix_combo.set(1)
 		w.offset_text.set(Font.selectedFontMaster.capHeight)
 		w.offset_checkbox.set(True)
-		w.sbFactors_combo.set(.9)
-		w.baseName_checkbox.set(False)
+		w.sbFactors_combo.set(1)
+		w.baseName_checkbox.set(True)
 		w.lowerCase_checkbox.set(False)
 		w.removeAnchors_checkbox.set(True)
 		for m in masterScaleList:
 			m.set("60")
 
 	elif item == 2:#subscript
-
+		preset="subscript"
 		w.suffix_combo.set(2)
 		w.offset_text.set(0)
 		w.offset_checkbox.set(True)
-		w.sbFactors_combo.set(.9)
-		w.baseName_checkbox.set(False)
+		w.sbFactors_combo.set(1)
+		w.baseName_checkbox.set(True)
 		w.lowerCase_checkbox.set(False)
 		w.removeAnchors_checkbox.set(True)
 		for m in masterScaleList:
@@ -203,12 +204,14 @@ def onPresetsChange(sender):
 
 	elif item == 3: #numerators
 
+		preset="numerators"
+
 		w.suffix_combo.set(3)
-		off=Font.selectedFontMaster.capHeight-offset*.6
-		w.offset_text.set(off)
+
+		w.offset_text.set(Font.selectedFontMaster.capHeight)
 		w.offset_checkbox.set(False)
-		w.sbFactors_combo.set(.9)
-		w.baseName_checkbox.set(False)
+		w.sbFactors_combo.set(1)
+		w.baseName_checkbox.set(True)
 		w.lowerCase_checkbox.set(False)
 		w.removeAnchors_checkbox.set(True)
 		for m in masterScaleList:
@@ -216,25 +219,26 @@ def onPresetsChange(sender):
 
 	elif item == 4: #denominators
 
+		preset="denominators"
 		w.suffix_combo.set(4)
 		w.offset_text.set(0)
 		w.offset_checkbox.set(False)
-		w.sbFactors_combo.set(.9)
-		w.baseName_checkbox.set(False)
+		w.sbFactors_combo.set(1)
+		w.baseName_checkbox.set(True)
 		w.lowerCase_checkbox.set(False)
 		w.removeAnchors_checkbox.set(True)
 		for m in masterScaleList:
 			m.set("60")
 
 	elif item == 5: #ordinals
-		print "ord"
+		preset="ordinals"
 		w.suffix_combo.set(5)
 
 		off=Font.selectedFontMaster.capHeight-Font.selectedFontMaster.ascender*.6
 		w.offset_text.set(off)
 		w.offset_checkbox.set(False)
 		w.sbFactors_combo.set(.9)
-		w.baseName_checkbox.set(False)
+		w.baseName_checkbox.set(True)
 		w.lowerCase_checkbox.set(False)
 		w.removeAnchors_checkbox.set(True)
 		for m in masterScaleList:

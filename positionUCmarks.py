@@ -27,7 +27,7 @@ elif Font.selectedFontMaster.name.startswith("Bold"):
 	topY=930
 
 angle=Font.selectedFontMaster.italicAngle #8.0
-caseOffset=151
+caseOffset=170
 # caseOffset=138
 
 caseSuffix=".case"

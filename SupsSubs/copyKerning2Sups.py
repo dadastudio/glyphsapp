@@ -7,12 +7,12 @@ Looks for kerning pairs and reduplicates their kerning for corresponding .sups g
 
 """
 import GlyphsApp
-
+import sys
 Font = Glyphs.font
 
-# suffix="superior"
 suffix=".sups"
 currMaster=Font.selectedFontMaster;
+figures=["zero.lf","one.lf","two.lf","three.lf","four.lf","five.lf","six.lf","seven.lf","eight.lf","nine.lf"]
 
 kerning = Font.kerning[currMaster.id]
 kerningToBeAdded = []
@@ -20,22 +20,37 @@ kerningToBeAdded = []
 for k in kerning:
 
 	baseGlyph=Font.glyphs[ k[7:]]
+	# if baseGlyph: 
+	# 	if baseGlyph.name in figures:
+	# 		print baseGlyph.name
 
-	supsGlyph=Font.glyphs[ k[7:]+suffix ]
+	# if baseGlyph.name in figures:
+	# 	print baseGlyph.name
+
+	#seven.lf > seven.sups
+
+	if baseGlyph:
+		if baseGlyph.name in figures:
+			print k[7:]
+			print baseGlyph.name[:-3]
+
+
+
+			supsGlyph=Font.glyphs[ baseGlyph.name[:-3]+suffix ]
+
+			print supsGlyph
+		else:
+			supsGlyph=Font.glyphs[ k[7:]+suffix ]
+	else:
+		continue
+
+
 
 	if supsGlyph!= None:
 
+		
+			 
 
-		# baseLeftKey = baseGlyph.leftKerningGroupId()
-		# if baseLeftKey:
-		# 	scLeftKey = baseLeftKey[:7] + baseLeftKey[7:]+suffix 
-		# 	supsGlyph.setLeftKerningGroupId_(scLeftKey)
-
-
-		# baseRightKey = baseGlyph.rightKerningGroupId()
-		# if baseRightKey:
-		# 	scRightKey = baseRightKey[:7] + baseRightKey[7:]+suffix 
-		# 	supsGlyph.setRightKerningGroupId_(scRightKey)
 
 		subLeftKey = k[:7]+k[7:]+suffix 
 		
@@ -44,7 +59,6 @@ for k in kerning:
 		for w in kerning[k]:
 			
 			supsGlyph2=Font.glyphs[ w[7:]+suffix ]
-
 
 			if supsGlyph2!= None:
 
