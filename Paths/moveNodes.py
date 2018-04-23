@@ -14,8 +14,10 @@ for path in selectedLayer.paths:
   for node in path.nodes: 
     if node.selected:
       if node.type==OFFCURVE:
+        # print node.prevNode.type
+        # print node.nextNode.type
 
-        if node.prevNode.type==LINE:
+        if node.prevNode.type==LINE or node.prevNode.type==CURVE:
           node.position=node.prevNode.position
         if node.nextNode.type==CURVE:
           node.position=node.nextNode.position

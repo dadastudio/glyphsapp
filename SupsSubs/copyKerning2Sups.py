@@ -48,9 +48,6 @@ for k in kerning:
 
 	if supsGlyph!= None:
 
-		
-			 
-
 
 		subLeftKey = k[:7]+k[7:]+suffix 
 		

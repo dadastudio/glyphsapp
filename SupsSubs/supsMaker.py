@@ -1,4 +1,4 @@
-#MenuTitle: Test Scale
+#MenuTitle: Sups Maker
 # -*- coding: utf-8 -*-
 __doc__="""
 
@@ -8,13 +8,19 @@ Scales the glyph down and inserts paths from specified instance
 import GlyphsApp
 import vanilla
 import copy
-
+Glyphs.clearLog()
+Glyphs.showMacroWindow()
 Font = Glyphs.font
+#////////////////////////////////////#
 scaleFactor=.6
+widthGain=0
+# widthGain=.02
+figuresHeight=700
+#////////////////////////////////////#
 leftMargin=15
 lineHeight=30
 offset=0
-figuresHeight=664
+selectedMaster = Font.selectedFontMaster
 
 def setLineHeight(i=0):
     return lineHeight*i+leftMargin
@@ -23,7 +29,7 @@ scOffset=90
 
 
 def GetPresets():
-  return ["Choose...","sups","subs","numr","numr lf","dnom","dnom lf","ordn"]
+  return ["Choose...","sups","subs","numr","numr from .lf","dnom","dnom from .lf","ordn"]
 
 def getLabel(text,lH=0,lm=0,ll=0):
   return vanilla.TextBox((leftMargin+lm, setLineHeight(lH)+2, 80+ll, 14), text, sizeStyle='small' )
@@ -47,6 +53,9 @@ def scale(sender) :
 
   selectedLayers = Font.selectedLayers
   selectedMaster = Font.selectedFontMaster
+
+  selectedMaster.userData["supsWeightGain"]=w.weight_text.get()
+  
 
   newInstance = GSInstance()
   newInstance.weightValue=selectedMaster.weightValue+selectedMaster.weightValue*(int(w.weight_text.get())/float(100))
@@ -123,8 +132,20 @@ def scale(sender) :
       if Font.selectedFontMaster.id==lay.associatedMasterId:
         if "[" in lay.name:
           bracket=lay
+          print lay.name
           print interpolated.glyphs[sourceGlyphName]
-          bracketLayer=interpolated.glyphs[sourceGlyphName].layers[lay.layerId].copyDecomposedLayer()
+
+          newLayer = GSLayer()
+          newLayer.name = bracket.name
+          # newLayer.associatedMasterId = Font.selectedFontMaster.id
+
+          selectedLayer.parent.layers[Font.masters[-1].id]
+          
+          
+          # font.glyphs[glyphName].layers.append(newLayer)
+
+
+          # bracketLayer=interpolated.glyphs[sourceGlyphName].layers[lay.layerId].copyDecomposedLayer()
 
 
     dLayer=interpolated.glyphs[sourceGlyphName].layers[0].copyDecomposedLayer()
@@ -138,7 +159,7 @@ def scale(sender) :
     for thisPath in paths:
       for thisNode in thisPath.nodes:
         pos = thisNode.position
-        pos.x = pos.x * scaleFactor
+        pos.x = pos.x * (scaleFactor+widthGain)
         pos.y = pos.y * scaleFactor + offset #+ hhhh
         thisNode.position = pos
 
@@ -151,27 +172,38 @@ def scale(sender) :
     # else:
     #   print "jest"
     
-    if "bracketLayer" in vars():
-      bracketPaths= bracketLayer.paths
+    # if bracketLayer:
+    #   print "jest bracket"
+    #   bracketPaths= bracketLayer.paths
 
-      for bracketPath in bracketPaths:
-        for bracketNode in bracketPath.nodes:
-          pos = bracketNode.position
-          pos.x = pos.x * scaleFactor
-          pos.y = pos.y * scaleFactor + offset #+ hhhh
-          bracketNode.position = pos
-
-
-      newLayer = GSLayer()
-      newLayer.name = bracket.name
-      newLayer.associatedMasterId = Font.selectedFontMaster.id
-      font.glyphs[glyphName].layers.append(newLayer)
+    #   for bracketPath in bracketPaths:
+    #     for bracketNode in bracketPath.nodes:
+    #       pos = bracketNode.position
+    #       pos.x = pos.x * scaleFactor
+    #       pos.y = pos.y * scaleFactor + offset #+ hhhh
+    #       bracketNode.position = pos
 
 
-    # selectedLayer.setLeftMetricsKey_(sourceGlyphName+"*"+str(scaleFactor)) 
-    # selectedLayer.setRightMetricsKey_(sourceGlyphName+"*"+str(scaleFactor))
-    selectedLayer.setLeftMetricsKey_(sourceGlyphName) 
-    selectedLayer.setRightMetricsKey_(sourceGlyphName)
+    #   newLayer = GSLayer()
+    #   newLayer.name = bracket.name
+    #   newLayer.associatedMasterId = Font.selectedFontMaster.id
+    #   font.glyphs[glyphName].layers.append(newLayer)
+
+
+    selectedLayer.setLeftMetricsKey_(sourceGlyphName+"*"+str(scaleFactor)) 
+    selectedLayer.setRightMetricsKey_(sourceGlyphName+"*"+str(scaleFactor))
+    
+    
+    # selectedLayer.setLeftMetricsKey_(sourceGlyphName) 
+    # selectedLayer.setRightMetricsKey_(sourceGlyphName)
+    selectedLayer.syncMetrics()
+
+    if selectedLayer.RSB<0:
+      selectedLayer.setRightMetricsKey_(sourceGlyphName+"*"+str(scaleFactor)) 
+
+    if selectedLayer.LSB<0:
+      selectedLayer.setLeftMetricsKey_(sourceGlyphName+"*"+str(scaleFactor)) 
+
 
     selectedLayer.syncMetrics()
 
@@ -197,7 +229,11 @@ w.fromLf_checkbox=getCheckbox("From .lf",4)
 
 w.weight_text.set(20)
 xOff=0
+
 weightGain=40
+
+if selectedMaster.userData["supsWeightGain"]:  
+  weightGain=int(selectedMaster.userData["supsWeightGain"])
 
 
 def onPresetsChange(sender):
