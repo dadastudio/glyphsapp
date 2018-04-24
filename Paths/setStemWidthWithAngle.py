@@ -40,10 +40,7 @@ theta = math.atan2(secondPoint.y - firstPoint.y, secondPoint.x - firstPoint.x) #
 angle=float(90-math.degrees(theta))#math.degrees(theta) #degrees
 
 
-r=110
-
-
-
+r=200
 offset=0
 
 for selectedPoint in  selection:

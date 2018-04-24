@@ -58,8 +58,12 @@ def scale(sender) :
   
 
   newInstance = GSInstance()
-  newInstance.weightValue=selectedMaster.weightValue+selectedMaster.weightValue*(int(w.weight_text.get())/float(100))
 
+
+  newInstance.weightValue=selectedMaster.weightValue+selectedMaster.weightValue*(int(w.weight_text.get())/float(100))
+  print newInstance.weightValue
+  print newInstance.customValue
+  print newInstance.widthValue
   Font.instances.insert(0, newInstance )
 
   interpolated = newInstance.interpolatedFont
